@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nexus - Macros</title>
+    <link href="global.css" rel="stylesheet"/>
+    <style>
+        .macro-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .macro-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--card-dark); border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); }
+        .macro-name { font-weight: 700; color: var(--text-bright); }
+        .macro-detail { font-size: 0.65rem; color: var(--text-dim); }
+        .rec-active { animation: blink 1s infinite; background: #ef4444 !important; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        #log { font-family: monospace; font-size: 0.6rem; color: var(--primary); margin-top: 15px; max-height: 60px; overflow: hidden; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <svg viewBox="0 0 24 24"><path d="M3 13h12v-2H3v2zm0 4h12v-2H3v2zm0-8h12V7H3v2zm14 8l5-5-5-5v10z"/></svg>
+            <h1>Macros</h1>
+        </div>
+    </header>
+
+    <main style="padding: 20px;">
+        <div class="card" style="text-align: center; padding: 30px 20px;">
+            <div id="recIndicator" style="width: 60px; height: 60px; background: rgba(19,127,236,0.1); border-radius: 100px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto;">
+                <div id="recDot" style="width: 24px; height: 24px; background: var(--primary); border-radius: 100px; transition: 0.3s;"></div>
+            </div>
+            <h2 id="status">Ready to Record</h2>
+            <p style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 20px;">Press keys to build your sequence</p>
+            <button id="recBtn" class="btn-primary">Start Recording</button>
+            <div id="log"></div>
+        </div>
+
+        <span class="section-label">Your Sequences</span>
+        <div id="macroList" class="macro-list">
+            <!-- Macros will appear here -->
+        </div>
+
+        <div style="margin-top: 20px; text-align: center; font-size: 0.6rem; color: var(--text-dim);">
+            Tip: Map these macros to M4/M5 in the Remapper tab using the "Macro" action type.
+        </div>
+    </main>
+
+    <nav class="nav-bar">
+        <a href="profiles.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08s5.97 1.09 6 3.08c-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+            Profiles
+        </a>
+        <a href="remapper.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M13 1.07V9h7c0-4.08-3.05-7.44-7-7.93zM4 15c0 4.42 3.58 8 8 8s8-3.58 8-8v-4H4v4zm7-13.93C7.05 1.56 4 4.92 4 9h7V1.07z"/></svg>
+            Remap
+        </a>
+        <a href="macro_recorder.html" class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M3 13h12v-2H3v2zm0 4h12v-2H3v2zm0-8h12V7H3v2zm14 8l5-5-5-5v10z"/></svg>
+            Macros
+        </a>
+        <a href="settings.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            Settings
+        </a>
+    </nav>
+
+    <script>
+        let recording = false;
+        let events = [];
+        let lastTime = 0;
+        const log = document.getElementById('log');
+
+        const MAP = {
+            'ControlLeft': 'CTRL', 'ControlRight': 'CTRL',
+            'ShiftLeft': 'SHIFT', 'ShiftRight': 'SHIFT',
+            'AltLeft': 'ALT', 'AltRight': 'ALT',
+            'Space': 'SPACE', 'Enter': 'ENTER', 'Tab': 'TAB',
+            'ArrowUp': 'UP', 'ArrowDown': 'DOWN', 'ArrowLeft': 'LEFT', 'ArrowRight': 'RIGHT',
+            'KeyW': 'W', 'KeyA': 'A', 'KeyS': 'S', 'KeyD': 'D'
+        };
+
+        function getVk(code) {
+            if(MAP[code]) return MAP[code];
+            if(code.startsWith('Key')) return code.slice(3);
+            if(code.startsWith('Digit')) return code.slice(5);
+            return code.toUpperCase();
+        }
+
+        document.getElementById('recBtn').onclick = () => {
+            recording = !recording;
+            const btn = document.getElementById('recBtn');
+            const dot = document.getElementById('recDot');
+            const status = document.getElementById('status');
+
+            if (recording) {
+                events = [];
+                lastTime = Date.now();
+                btn.textContent = "Stop & Copy String";
+                btn.style.background = "#ef4444";
+                dot.classList.add('rec-active');
+                status.textContent = "Recording... Press keys";
+                log.textContent = "";
+            } else {
+                btn.textContent = "Start Recording";
+                btn.style.background = "var(--primary)";
+                dot.classList.remove('rec-active');
+                status.textContent = "Macro Saved to Clipboard!";
+                
+                const finalStr = processEvents();
+                navigator.clipboard.writeText(finalStr);
+                addToList(finalStr);
+                setTimeout(() => status.textContent = "Ready to Record", 2000);
+            }
+        };
+
+        window.onkeydown = (e) => {
+            if (!recording) return;
+            e.preventDefault();
+            const now = Date.now();
+            const delay = now - lastTime;
+            lastTime = now;
+            const vk = getVk(e.code);
+            events.push({type: 'delay', val: delay});
+            events.push({type: 'key', vk: vk, state: 'D'});
+            log.textContent += `${vk}↓ `;
+        };
+
+        window.onkeyup = (e) => {
+            if (!recording) return;
+            e.preventDefault();
+            const now = Date.now();
+            const delay = now - lastTime;
+            lastTime = now;
+            const vk = getVk(e.code);
+            events.push({type: 'delay', val: delay});
+            events.push({type: 'key', vk: vk, state: 'U'});
+            log.textContent += `${vk}↑ `;
+        };
+
+        function processEvents() {
+            return events.map(e => {
+                if(e.type === 'delay') return e.val > 10 ? e.val : '';
+                return `${e.vk}:${e.state}`;
+            }).filter(s => s !== '').join(',');
+        }
+
+        function addToList(str) {
+            const container = document.getElementById('macroList');
+            const item = document.createElement('div');
+            item.className = 'macro-item';
+            item.innerHTML = `
+                <div>
+                    <p class="macro-name">Sequence ${container.children.length + 1}</p>
+                    <p class="macro-detail">${str.slice(0, 40)}...</p>
+                </div>
+                <button class="browse-btn" onclick="navigator.clipboard.writeText('${str}')">Copy</button>
+            `;
+            container.prepend(item);
+        }
+    </script>
+</body>
+</html>

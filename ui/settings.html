@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nexus Ultra - Settings</title>
+    <link href="global.css" rel="stylesheet"/>
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <svg style="width:24px; height:24px; fill:var(--primary)" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <h1>System Settings</h1>
+        </div>
+    </header>
+
+    <main style="padding: 24px;">
+        <span class="section-label">General Preferences</span>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <div>
+                    <p style="font-weight: 800; color: var(--text-bright);">Launch on Startup</p>
+                    <p style="font-size: 0.65rem; color: var(--text-dim); font-weight: 600;">Automatically start Nexus when Windows boots</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="startup">
+                  <span class="slider round"></span>
+                </label>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p style="font-weight: 800; color: var(--text-bright);">Gaming Mode</p>
+                    <p style="font-size: 0.65rem; color: var(--text-dim); font-weight: 600;">Disable all remappings in fullscreen apps</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="gaming">
+                  <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+
+        <span class="section-label">Performance & Footprint</span>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <p style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim);">Background Mode</p>
+                <div style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.55rem; font-weight: 900;">ULTRA LIGHT</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <p style="font-size: 0.75rem; font-weight: 800; color: var(--text-dim);">Engine Priority</p>
+                <p style="font-size: 0.75rem; color: var(--primary); font-weight: 800;">REALTIME</p>
+            </div>
+        </div>
+
+        <span class="section-label">Application Status</span>
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(19, 127, 236, 0.1);">
+            <p style="font-size: 0.8rem; font-weight: 800; color: var(--text-dim);">Build ID</p>
+            <p style="font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; color: var(--primary); font-weight: 900;">ULTRA-v4.0.5</p>
+        </div>
+
+        <button id="saveBtn" class="btn-primary" style="margin-top: 30px; font-weight: 800;">
+            <svg style="width: 18px; fill: white;" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+            SAVE PREFERENCES
+        </button>
+    </main>
+
+    <style>
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #1e293b; transition: .3s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.05); }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 2px; background-color: #94a3b8; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: rgba(19, 127, 236, 0.2); border-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); background-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); }
+    </style>
+
+    <nav class="nav-bar">
+        <a href="profiles.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08s5.97 1.09 6 3.08c-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+            Profiles
+        </a>
+        <a href="remapper.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M13 1.07V9h7c0-4.08-3.05-7.44-7-7.93zM4 15c0 4.42 3.58 8 8 8s8-3.58 8-8v-4H4v4zm7-13.93C7.05 1.56 4 4.92 4 9h7V1.07z"/></svg>
+            Remap
+        </a>
+        <a href="macro_recorder.html" class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M3 13h12v-2H3v2zm0 4h12v-2H3v2zm0-8h12V7H3v2zm14 8l5-5-5-5v10z"/></svg>
+            Macros
+        </a>
+        <a href="settings.html" class="nav-item active">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            Settings
+        </a>
+    </nav>
+
+    <script>
+        const API = "http://127.0.0.1:48621";
+
+        async function load() {
+            try {
+                const res = await fetch(`${API}/config`);
+                const data = await res.json();
+                document.getElementById('gaming').checked = !!data.suspend_fullscreen;
+                document.getElementById('startup').checked = !!data.launch_on_startup;
+            } catch(e) {}
+        }
+
+        async function save() {
+            const btn = document.getElementById('saveBtn');
+            const old = btn.innerHTML;
+            btn.innerHTML = "APPLYING...";
+
+            try {
+                const curRes = await fetch(`${API}/config`);
+                const cfg = await curRes.json();
+                
+                cfg.suspend_fullscreen = document.getElementById('gaming').checked;
+                cfg.launch_on_startup = document.getElementById('startup').checked;
+
+                await fetch(`${API}/config`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(cfg)
+                });
+                btn.innerHTML = "PREFERENCES SAVED!";
+                setTimeout(() => btn.innerHTML = old, 1500);
+            } catch(e) {
+                btn.innerHTML = "ERROR";
+                setTimeout(() => btn.innerHTML = old, 1500);
+            }
+        }
+
+        document.getElementById('saveBtn').onclick = save;
+        load();
+    </script>
+</body>
+</html>

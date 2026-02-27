@@ -1,0 +1,17 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+:root { --primary: #137fec; --primary-glow: rgba(19, 127, 236, 0.4); --background-dark: #101922; --card-dark: #1a242d; --input-dark: #0a0f14; --text-main: #f8fafc; --text-dim: #94a3b8; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--background-dark); color: var(--text-main); min-height: 100vh; padding-bottom: 120px; user-select: none; }
+header { padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; sticky top: 0; background: rgba(16, 25, 34, 0.95); backdrop-filter: blur(10px); z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.header-title { display: flex; align-items: center; gap: 12px; }
+.header-title h1 { font-size: 1.2rem; font-weight: 700; }
+.card { background: var(--card-dark); border: 1px solid rgba(19, 127, 236, 0.1); border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+.btn-primary { width: 100%; padding: 16px; background: var(--primary); color: white; font-weight: 700; border: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px var(--primary-glow); }
+.nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(16, 25, 34, 0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; padding: 12px 10px 30px 10px; z-index: 200; }
+.nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-dim); text-decoration: none; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; gap: 4px; }
+.nav-item.active { color: var(--primary); }
+.nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+.section-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.05em; margin-bottom: 10px; display: block; }
+select, input { background: var(--input-dark); border: 1px solid rgba(255,255,255,0.05); color: white; border-radius: 8px; padding: 10px; font-size: 0.85rem; width: 100%; }
+.status-badge { display: flex; items-center gap: 6px; padding: 4px 12px; background: rgba(19, 127, 236, 0.1); border: 1px solid rgba(19, 127, 236, 0.2); border-radius: 100px; }
+.status-point { width: 8px; height: 8px; background: var(--primary); border-radius: 100px; box-shadow: 0 0 8px var(--primary); }
