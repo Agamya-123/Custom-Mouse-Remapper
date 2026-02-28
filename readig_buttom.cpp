@@ -276,20 +276,22 @@ void ReleaseStickyAlt() {
 }
 
 bool HandleAltTab() {
-  // Send Alt+Tab and release immediately for "Clean Switching"
+  // Use Alt+Esc for "Infinite Cycling"
+  // This cycles through all apps without opening the switcher UI
+  // and doesn't get stuck toggling between just 2 apps.
   INPUT inputs[4] = {};
   
   // Alt Down
   inputs[0].type = INPUT_KEYBOARD;
   inputs[0].ki.wVk = VK_MENU;
   
-  // Tab Down
+  // Esc Down
   inputs[1].type = INPUT_KEYBOARD;
-  inputs[1].ki.wVk = VK_TAB;
+  inputs[1].ki.wVk = VK_ESCAPE;
   
-  // Tab Up
+  // Esc Up
   inputs[2].type = INPUT_KEYBOARD;
-  inputs[2].ki.wVk = VK_TAB;
+  inputs[2].ki.wVk = VK_ESCAPE;
   inputs[2].ki.dwFlags = KEYEVENTF_KEYUP;
   
   // Alt Up
