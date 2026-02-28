@@ -920,6 +920,8 @@ std::string ActionTypeToString(ActionType type) {
     return "open";
   case ActionType::Text:
     return "text";
+  case ActionType::Macro:
+    return "macro";
   default:
     return "none";
   }
@@ -1033,6 +1035,12 @@ bool ParseAction(const std::string &rawValue, Action &action) {
 
   if (type == "TEXT") {
     action.type = ActionType::Text;
+    action.payload = payload;
+    return !action.payload.empty();
+  }
+
+  if (type == "MACRO") {
+    action.type = ActionType::Macro;
     action.payload = payload;
     return !action.payload.empty();
   }
@@ -1173,6 +1181,8 @@ ActionType IndexToActionType(int idx) {
     return ActionType::Open;
   case 4:
     return ActionType::Text;
+  case 5:
+    return ActionType::Macro;
   default:
     return ActionType::None;
   }
