@@ -55,6 +55,10 @@ std::atomic<unsigned long long> g_lastRateWindowCount{0};
 std::atomic<bool> g_macroRecording{false};
 std::atomic<bool> g_appIsReady{false};
 
+// Sticky Keys for Alt-Tab cycling
+bool g_isAltHeld = false;
+const UINT_PTR TIMER_ID_ALT_RELEASE = 1001;
+
 bool ParseAction(const std::string &rawValue, Action &action);
 bool SaveConfig(const std::string &path, const Config &cfg);
 std::string ActionToConfigValue(const Action &action);
@@ -257,6 +261,68 @@ bool SendKeyCombo(const std::vector<WORD> &keys) {
                    sizeof(INPUT)) == inputs.size();
 }
 
+void ReleaseStickyAlt() {
+  if (g_isAltHeld) {
+    INPUT in = {};
+    in.type = INPUT_KEYBOARD;
+    in.ki.wVk = VK_MENU;
+    in.ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(1, &in, sizeof(INPUT));
+    g_isAltHeld = false;
+    if (g_mainWindow) {
+      KillTimer(g_mainWindow, TIMER_ID_ALT_RELEASE);
+    }
+  }
+}
+
+bool HandleAltTab() {
+  if (!g_isAltHeld) {
+    g_isAltHeld = true;
+    INPUT inputs[2] = {};
+    // Alt Down
+    inputs[0].type = INPUT_KEYBOARD;
+    inputs[0].ki.wVk = VK_MENU;
+    // Tab Down
+    inputs[1].type = INPUT_KEYBOARD;
+    inputs[1].ki.wVk = VK_TAB;
+    SendInput(2, inputs, sizeof(INPUT));
+
+    // Tab Up only
+    INPUT up = {};
+    up.type = INPUT_KEYBOARD;
+    up.ki.wVk = VK_TAB;
+    up.ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(1, &up, sizeof(INPUT));
+  } else {
+    // Just Tab Down/Up
+    INPUT inputs[2] = {};
+    inputs[0].type = INPUT_KEYBOARD;
+    inputs[0].ki.wVk = VK_TAB;
+    inputs[1].type = INPUT_KEYBOARD;
+    inputs[1].ki.wVk = VK_TAB;
+    inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(2, inputs, sizeof(INPUT));
+  }
+
+  if (g_mainWindow) {
+    SetTimer(g_mainWindow, TIMER_ID_ALT_RELEASE, 1500, nullptr);
+  }
+  return true;
+}
+
+bool IsAltTabCombo(const std::vector<WORD> &keys) {
+  if (keys.size() != 2)
+    return false;
+  bool hAlt = false, hTab = false;
+  for (WORD k : keys) {
+    if (k == VK_MENU || k == VK_LMENU || k == VK_RMENU)
+      hAlt = true;
+    if (k == VK_TAB)
+      hTab = true;
+  }
+  return hAlt && hTab;
+}
+
 bool SendUnicodeText(const std::string &text) {
   std::wstring wide = Utf8ToWide(text);
   if (wide.empty()) {
@@ -397,8 +463,17 @@ bool ExecuteMacro(const std::string &payload) {
 }
 
 bool ExecuteAction(const Action &action) {
+  // If doing non-alt-tab action, release Alt if it was stuck
+  if (g_isAltHeld &&
+      (action.type != ActionType::Keys || !IsAltTabCombo(action.keys))) {
+    ReleaseStickyAlt();
+  }
+
   switch (action.type) {
   case ActionType::Keys:
+    if (IsAltTabCombo(action.keys)) {
+      return HandleAltTab();
+    }
     return SendKeyCombo(action.keys);
   case ActionType::Run:
     return RunCommand(action.payload);
@@ -1342,6 +1417,11 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     default:
       return DefWindowProcA(hwnd, msg, wParam, lParam);
     }
+  case WM_TIMER:
+    if (wParam == TIMER_ID_ALT_RELEASE) {
+      ReleaseStickyAlt();
+    }
+    return 0;
   case WM_DESTROY:
     if (g_settingsWindow) {
       DestroyWindow(g_settingsWindow);
