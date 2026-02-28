@@ -329,9 +329,14 @@ void SetLaunchOnStartup(bool enable) {
     if (enable) {
       char path[MAX_PATH];
       GetModuleFileNameA(nullptr, path, MAX_PATH);
+      
+      // Enclose path in quotes for Windows to handle spaces correctly
+      char quotedPath[MAX_PATH + 3];
+      sprintf(quotedPath, "\"%s\"", path);
+
       RegSetValueExA(hKey, appName, 0, REG_SZ,
-                     reinterpret_cast<const BYTE *>(path),
-                     static_cast<DWORD>(strlen(path) + 1));
+                     reinterpret_cast<const BYTE *>(quotedPath),
+                     static_cast<DWORD>(strlen(quotedPath) + 1));
     } else {
       RegDeleteValueA(hKey, appName);
     }
