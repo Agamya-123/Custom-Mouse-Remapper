@@ -276,37 +276,28 @@ void ReleaseStickyAlt() {
 }
 
 bool HandleAltTab() {
-  if (!g_isAltHeld) {
-    g_isAltHeld = true;
-    INPUT inputs[2] = {};
-    // Alt Down
-    inputs[0].type = INPUT_KEYBOARD;
-    inputs[0].ki.wVk = VK_MENU;
-    // Tab Down
-    inputs[1].type = INPUT_KEYBOARD;
-    inputs[1].ki.wVk = VK_TAB;
-    SendInput(2, inputs, sizeof(INPUT));
+  // Send Alt+Tab and release immediately for "Clean Switching"
+  INPUT inputs[4] = {};
+  
+  // Alt Down
+  inputs[0].type = INPUT_KEYBOARD;
+  inputs[0].ki.wVk = VK_MENU;
+  
+  // Tab Down
+  inputs[1].type = INPUT_KEYBOARD;
+  inputs[1].ki.wVk = VK_TAB;
+  
+  // Tab Up
+  inputs[2].type = INPUT_KEYBOARD;
+  inputs[2].ki.wVk = VK_TAB;
+  inputs[2].ki.dwFlags = KEYEVENTF_KEYUP;
+  
+  // Alt Up
+  inputs[3].type = INPUT_KEYBOARD;
+  inputs[3].ki.wVk = VK_MENU;
+  inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
 
-    // Tab Up only
-    INPUT up = {};
-    up.type = INPUT_KEYBOARD;
-    up.ki.wVk = VK_TAB;
-    up.ki.dwFlags = KEYEVENTF_KEYUP;
-    SendInput(1, &up, sizeof(INPUT));
-  } else {
-    // Just Tab Down/Up
-    INPUT inputs[2] = {};
-    inputs[0].type = INPUT_KEYBOARD;
-    inputs[0].ki.wVk = VK_TAB;
-    inputs[1].type = INPUT_KEYBOARD;
-    inputs[1].ki.wVk = VK_TAB;
-    inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
-    SendInput(2, inputs, sizeof(INPUT));
-  }
-
-  if (g_mainWindow) {
-    SetTimer(g_mainWindow, TIMER_ID_ALT_RELEASE, 1500, nullptr);
-  }
+  SendInput(4, inputs, sizeof(INPUT));
   return true;
 }
 
