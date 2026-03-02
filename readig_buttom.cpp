@@ -59,6 +59,8 @@ std::atomic<bool> g_appIsReady{false};
 bool g_isAltHeld = false;
 const UINT_PTR TIMER_ID_ALT_RELEASE = 1001;
 
+HHOOK g_mouseHook = nullptr;
+
 bool ParseAction(const std::string &rawValue, Action &action);
 bool SaveConfig(const std::string &path, const Config &cfg);
 std::string ActionToConfigValue(const Action &action);
@@ -1218,25 +1220,45 @@ bool IsFullscreenForegroundWindow() {
          abs(wr.bottom - mi.rcMonitor.bottom) <= tol;
 }
 
-void HandleMouse(USHORT flags) {
-  static DWORD lastBtn4Tick = 0;
-  static DWORD lastBtn5Tick = 0;
-  const DWORD now = GetTickCount();
-  const DWORD debounceMs = 120;
+LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
+  if (nCode == HC_ACTION && !g_macroRecording) {
+    if (wParam == WM_XBUTTONDOWN || wParam == WM_XBUTTONUP) {
+      MSLLHOOKSTRUCT *pMouseStruct = (MSLLHOOKSTRUCT *)lParam;
+      int button = HIWORD(pMouseStruct->mouseData);
+      
+      if (g_config.suspendInFullscreen && IsFullscreenForegroundWindow()) {
+        return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
+      }
+      
+      static DWORD lastBtn4Tick = 0;
+      static DWORD lastBtn5Tick = 0;
+      const DWORD now = GetTickCount();
+      const DWORD debounceMs = 120;
 
-  if (g_config.suspendInFullscreen && IsFullscreenForegroundWindow()) {
-    return;
+      if (button == 1) { // XBUTTON1 (Button 4)
+         if (g_config.button4.type != ActionType::None) {
+            if (wParam == WM_XBUTTONDOWN) {
+               if (now - lastBtn4Tick > debounceMs) {
+                 lastBtn4Tick = now;
+                 ExecuteAction(g_config.button4);
+               }
+            }
+            return 1; // Block!
+         }
+      } else if (button == 2) { // XBUTTON2 (Button 5)
+         if (g_config.button5.type != ActionType::None) {
+            if (wParam == WM_XBUTTONDOWN) {
+               if (now - lastBtn5Tick > debounceMs) {
+                 lastBtn5Tick = now;
+                 ExecuteAction(g_config.button5);
+               }
+            }
+            return 1; // Block!
+         }
+      }
+    }
   }
-
-  if ((flags & RI_MOUSE_BUTTON_4_DOWN) && (now - lastBtn4Tick > debounceMs)) {
-    lastBtn4Tick = now;
-    ExecuteAction(g_config.button4);
-  }
-
-  if ((flags & RI_MOUSE_BUTTON_5_DOWN) && (now - lastBtn5Tick > debounceMs)) {
-    lastBtn5Tick = now;
-    ExecuteAction(g_config.button5);
-  }
+  return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
 }
 
 ActionType IndexToActionType(int idx) {
@@ -1376,7 +1398,6 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     const RAWINPUT *raw = reinterpret_cast<const RAWINPUT *>(buffer.data());
     if (raw->header.dwType == RIM_TYPEMOUSE) {
       UpdateTelemetryFromRawInput(raw);
-      HandleMouse(raw->data.mouse.usButtonFlags);
     }
     return 0;
   }
@@ -1421,6 +1442,9 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       g_settingsWindow = nullptr;
     }
     StopStatusServer();
+    if (g_mouseHook) {
+      UnhookWindowsHookEx(g_mouseHook);
+    }
     RemoveTrayIcon();
     PostQuitMessage(0);
     return 0;
@@ -1436,6 +1460,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int) {
   WriteDefaultConfigIfMissing(g_configPath);
   g_config = LoadConfig(g_configPath);
   StartStatusServer();
+
+  g_mouseHook = SetWindowsHookExA(WH_MOUSE_LL, LowLevelMouseProc, GetModuleHandleA(nullptr), 0);
 
   WNDCLASSA wc = {};
   wc.lpfnWndProc = MainProc;
