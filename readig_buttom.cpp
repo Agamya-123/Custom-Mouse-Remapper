@@ -1235,7 +1235,7 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
       const DWORD now = GetTickCount();
       const DWORD debounceMs = 120;
 
-      if (button == 1) { // XBUTTON1 (Button 4)
+      if (button == 2) { // XBUTTON2 (typically Upper/Forward -> Button 4)
          if (g_config.button4.type != ActionType::None) {
             if (wParam == WM_XBUTTONDOWN) {
                if (now - lastBtn4Tick > debounceMs) {
@@ -1245,7 +1245,7 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
             }
             return 1; // Block!
          }
-      } else if (button == 2) { // XBUTTON2 (Button 5)
+      } else if (button == 1) { // XBUTTON1 (typically Lower/Back -> Button 5)
          if (g_config.button5.type != ActionType::None) {
             if (wParam == WM_XBUTTONDOWN) {
                if (now - lastBtn5Tick > debounceMs) {
