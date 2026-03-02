@@ -1,0 +1,7 @@
+mouse_remap.ini
+logs/
+*.ilk
+*.pdb
+*.obj
+*.tmp
+.vscode/
